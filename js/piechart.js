@@ -6,8 +6,6 @@ $(document).ready(function(){
             url: URL,
             dataType: "json",
             success: function(repodata){
-                //console.log("JSON Data of " + reponame);
-                console.log(repodata);
                 for (var i = 0; i < repodata.length; i++ ) {
                     var flag = 0;
                     for(var usercount = 0; usercount < user.length; usercount++)
@@ -34,10 +32,6 @@ $(document).ready(function(){
                         deletion[usercount] += count_deletions;
                     }
                 };
-                console.log(user);
-                console.log(commit);
-                console.log(addition);
-                console.log(deletion);
             }
         });
     }
@@ -45,7 +39,6 @@ $(document).ready(function(){
         url: "https://api.github.com/orgs/gearsystems/repos",
         dataType: "json",
         success: function(RepositoryData){
-            console.log("New Data");
             data_repos = RepositoryData;
             var size = RepositoryData.length;
             user = new Array();
@@ -55,7 +48,6 @@ $(document).ready(function(){
             for( var repoval = 0; repoval < size; repoval++){
                 var reponame = data_repos[repoval].name;
                 var string = "https://api.github.com/repos/gearsystems/"+reponame+"/stats/contributors";
-                console.log(string);
                 requestUserData(string, user, commit, addition, deletion);
             }
             final = new Array();
