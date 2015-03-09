@@ -2,10 +2,20 @@
  "name": "EPICS-GEAR",
  "children": [
   {
-   "name": "Sudheesh Singanamalla"
+   "name": "Sudheesh Singanamalla",
+    "children": [
+        {
+            "name": "Sunanda Dadi"
+        }
+    ]
   },
   {
-   "name": "Rahul Jain"
+   "name": "Rahul Jain",
+   "children": [
+        {
+            "name": "Sreerag Sreenath"
+        }
+    ]
   },
   {
    "name": "Rajat Ujawane"
