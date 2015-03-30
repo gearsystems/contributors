@@ -4,7 +4,6 @@
 </title>
 </head>
 <meta charset="utf-8">
-<script src="http://d3js.org/d3.v3.min.js"></script>
 <link href="./styles.css" rel="stylesheet"> 
 <body>
 <nav class="navbar navbar-default">
@@ -25,9 +24,15 @@
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script src="js/piechart.js"></script>
 <div>
-  <div id="Commits" style="width: 444px; height: 500px; float:left"></div>
-  <div id="Additions" style="width: 444px; height: 500px; float: left"></div>
-  <div id="Deletions" style="width: 444px; height: 500px; float: left"></div>
+    <div class="col-lg-4" style="float:left">
+        <div id="Commits" style="width: 444px; height: 500px;"></div>
+    </div>
+    <div class="col-lg-4" style="float:left">
+        <div id="Additions" style="width: 444px; height: 500px;"></div>
+    </div>
+    <div class="col-lg-4" style="float:left">
+        <div id="Deletions" style="width: 444px; height: 500px;"></div>
+    </div>
 </div>
 </body>
 </html>
