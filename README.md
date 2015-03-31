@@ -1,5 +1,6 @@
 Contributors
 ============
+[![Code Climate](https://codeclimate.com/github/gearsystems/contributors/badges/gpa.svg)](https://codeclimate.com/github/gearsystems/contributors)
 
 This repository keeps a graphical visualization of the contributors that are contributing to various projects under GEAR Systems project.
 
