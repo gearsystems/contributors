@@ -1,5 +1,8 @@
+/* global $, document, google */
+
 google.load("visualization", "1", {packages: ["corechart"]});
 $(document).ready(function(){
+    'use strict';
     function requestUserData(URL, user, commit, addition, deletion){
         $.ajax({
             async: false,
@@ -15,7 +18,7 @@ $(document).ready(function(){
                         }
                     }
                     var count_commits = 0, count_additions = 0, count_deletions = 0;
-                    repodata_weeks_length = repodata[i].weeks.length;
+                    var repodata_weeks_length = repodata[i].weeks.length;
                     for (var j = 0 ;j < repodata_weeks_length ; j++){
                         count_commits += repodata[i].weeks[j].c;
                         count_additions += repodata[i].weeks[j].a;
@@ -40,18 +43,18 @@ $(document).ready(function(){
         url: "https://api.github.com/orgs/gearsystems/repos",
         dataType: "json",
         success: function(RepositoryData){
-            data_repos = RepositoryData;
+            var dataRepos = RepositoryData;
             var size = RepositoryData.length;
-            user = [];
-            commit = [];
-            addition = [];
-            deletion = [];
+            var user = [];
+            var commit = [];
+            var addition = [];
+            var deletion = [];
             for( var repoval = 0; repoval < size; repoval++){
-                var reponame = data_repos[repoval].name;
+                var reponame = dataRepos[repoval].name;
                 var string = "https://api.github.com/repos/gearsystems/"+reponame+"/stats/contributors";
                 requestUserData(string, user, commit, addition, deletion);
             }
-            final = [];
+            var final = [];
             final.push('Users','Commits','Additions','Deletions');
             for (var arrPopulate = 0; arrPopulate < user.length; arrPopulate++ ){
                 final.push(user[arrPopulate],commit[arrPopulate],addition[arrPopulate],deletion[arrPopulate]);
