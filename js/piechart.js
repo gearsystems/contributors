@@ -8,11 +8,12 @@ $(document).ready(function(){
             success: function(repodata){
                 for (var i = 0; i < repodata.length; i++ ) {
                     var flag = 0;
-                    for(var usercount = 0; usercount < user.length; usercount++)
-                        if(user[usercount]==repodata[i].author.login){
+                    for(var usercount = 0; usercount < user.length; usercount++) {
+                        if(user[usercount]===repodata[i].author.login){
                             flag=1;
                             break;
                         }
+                    }
                     var count_commits = 0, count_additions = 0, count_deletions = 0;
                     repodata_weeks_length = repodata[i].weeks.length;
                     for (var j = 0 ;j < repodata_weeks_length ; j++){
@@ -20,7 +21,7 @@ $(document).ready(function(){
                         count_additions += repodata[i].weeks[j].a;
                         count_deletions += repodata[i].weeks[j].d;
                     }
-                    if(flag == 0){
+                    if(flag === 0){
                         user.push(repodata[i].author.login);
                         commit.push(count_commits);
                         addition.push(count_additions);
@@ -31,7 +32,7 @@ $(document).ready(function(){
                         addition[usercount] += count_additions;
                         deletion[usercount] += count_deletions;
                     }
-                };
+                }
             }
         });
     }
@@ -41,139 +42,139 @@ $(document).ready(function(){
         success: function(RepositoryData){
             data_repos = RepositoryData;
             var size = RepositoryData.length;
-            user = new Array();
-            commit = new Array();
-            addition = new Array();
-            deletion = new Array();
+            user = [];
+            commit = [];
+            addition = [];
+            deletion = [];
             for( var repoval = 0; repoval < size; repoval++){
                 var reponame = data_repos[repoval].name;
                 var string = "https://api.github.com/repos/gearsystems/"+reponame+"/stats/contributors";
                 requestUserData(string, user, commit, addition, deletion);
             }
-            final = new Array();
+            final = [];
             final.push('Users','Commits','Additions','Deletions');
-            for (var i = 0; i < user.length; i++ ){
-                final.push(user[i],commit[i],addition[i],deletion[i]);
+            for (var arrPopulate = 0; arrPopulate < user.length; arrPopulate++ ){
+                final.push(user[arrPopulate],commit[arrPopulate],addition[arrPopulate],deletion[arrPopulate]);
             }
             //Commits
-            var data = google.visualization.arrayToDataTable([
+            var commitData = google.visualization.arrayToDataTable([
                 [final[0], final[1]],
                 [final[4], final[5]]
                 ]);
-            for (var i = 2; i < (final.length)/4; i++ ){
-                data.addRows([[final[(4*i)],final[(4*i)+1]]]);
+            for (var rowAdder = 2; rowAdder < (final.length)/4; rowAdder++ ){
+                commitData.addRows([[final[(4*rowAdder)],final[(4*rowAdder)+1]]]);
             }
-            var options = {
+            var commitOptions = {
                 title: 'Commits'
             };
-            var chart = new google.visualization.PieChart(document.getElementById('Commits'));
-            chart.draw(data, options);
+            var commitPieChart = new google.visualization.PieChart(document.getElementById('Commits'));
+            commitPieChart.draw(commitData, commitOptions);
 
             //Additions
-            var data = google.visualization.arrayToDataTable([
+            var additionData = google.visualization.arrayToDataTable([
                 [final[0], final[2]],
                 [final[4], final[6]]
                 ]);
-            for (var i = 2; i < (final.length)/4; i++ ){
-                data.addRows([[final[(4*i)],final[(4*i)+2]]]);
+            for (var additionRow = 2; additionRow < (final.length)/4; additionRow++ ){
+                additionData.addRows([[final[(4*additionRow)],final[(4*additionRow)+2]]]);
             }
-            var options = {
+            var additionOptions = {
                 title: 'Additions'
             };
-            var chart = new google.visualization.PieChart(document.getElementById('Additions'));
-            chart.draw(data, options);
+            var additionPieChart = new google.visualization.PieChart(document.getElementById('Additions'));
+            additionPieChart.draw(additionData, additionOptions);
 
             //Deletions
-            var data = google.visualization.arrayToDataTable([
+            var deletionData = google.visualization.arrayToDataTable([
                 [final[0], final[3]],
                 [final[4], final[7]]
                 ]);
-            for (var i = 2; i < (final.length)/4; i++ ){
-                data.addRows([[final[(4*i)],final[(4*i)+3]]]);
+            for (var deletionRow = 2; deletionRow < (final.length)/4; deletionRow++ ){
+                deletionData.addRows([[final[(4*deletionRow)],final[(4*deletionRow)+3]]]);
             }
-            var options = {
+            var deletionOptions = {
                 title: 'Deletions'
             };
-            var chart = new google.visualization.PieChart(document.getElementById('Deletions'));
-            chart.draw(data, options);
+            var deletionPieChart = new google.visualization.PieChart(document.getElementById('Deletions'));
+            deletionPieChart.draw(deletionData, deletionOptions);
 
 
 
 
             //Commits
-            var data = google.visualization.arrayToDataTable([
+            var commitBarData = google.visualization.arrayToDataTable([
                  [final[0], final[1], { role: 'style' }],
                  [final[4], final[5], 'red']
               ]);
-            for (var i = 2; i < (final.length)/4; i++ ){
-                data.addRows([[final[(4*i)],final[(4*i)+1], 'red']]);
+            for (var commitBarRow = 2; commitBarRow < (final.length)/4; commitBarRow++ ){
+                commitBarData.addRows([[final[(4*commitBarRow)],final[(4*commitBarRow)+1], 'red']]);
             }
 
-              var view = new google.visualization.DataView(data);
-              view.setColumns([0, 1,
+              var commitView = new google.visualization.DataView(commitBarData);
+              commitView.setColumns([0, 1,
                                { calc: "stringify",
                                  sourceColumn: 1,
                                  type: "string",
                                  role: "annotation" },
                                2]);
-            var options = {
+            var commitBarOptions = {
                 title: "Commits",
                 bar: {groupWidth: "95%"},
                 legend: { position: "none" },
             };
-            var chart = new google.visualization.BarChart(document.getElementById('barchart_commit'));
-            chart.draw(view, options);
+            var commitBarChart = new google.visualization.BarChart(document.getElementById('barchart_commit'));
+            commitBarChart.draw(commitView, commitBarOptions);
 
 
             //Additions
-            var data = google.visualization.arrayToDataTable([
+            var additionBarData = google.visualization.arrayToDataTable([
                  [final[0], final[1], { role: 'style' }],
                  [final[4], final[6], 'green']
               ]);
-            for (var i = 2; i < (final.length)/4; i++ ){
-                data.addRows([[final[(4*i)],final[(4*i)+2], 'green']]);
+            for (var additionBarRow = 2; additionBarRow < (final.length)/4; additionBarRow++ ){
+                additionBarData.addRows([[final[(4*additionBarRow)],final[(4*additionBarRow)+2], 'green']]);
             }
 
-              var view = new google.visualization.DataView(data);
-              view.setColumns([0, 1,
+              var additionView = new google.visualization.DataView(additionBarData);
+              additionView.setColumns([0, 1,
                                { calc: "stringify",
                                  sourceColumn: 1,
                                  type: "string",
                                  role: "annotation" },
                                2]);
-            var options = {
+            var additionBarOptions = {
                 title: "Additions",
                 bar: {groupWidth: "95%"},
                 legend: { position: "none" },
             };
-            var chart = new google.visualization.BarChart(document.getElementById('barchart_addition'));
-            chart.draw(view, options);
+            var additionBarChart = new google.visualization.BarChart(document.getElementById('barchart_addition'));
+            additionBarChart.draw(additionView, additionBarOptions);
 
 
             
             //Deletions
-            var data = google.visualization.arrayToDataTable([
+            var deletionBarData = google.visualization.arrayToDataTable([
                  [final[0], final[1], { role: 'style' }],
                  [final[4], final[7], 'blueviolet']
               ]);
-            for (var i = 2; i < (final.length)/4; i++ ){
-                data.addRows([[final[(4*i)],final[(4*i)+3], 'blueviolet']]);
+            for (var deletionBarRow = 2; deletionBarRow < (final.length)/4; deletionBarRow++ ){
+                deletionBarData.addRows([[final[(4*deletionBarRow)],final[(4*deletionBarRow)+3], 'blueviolet']]);
             }
 
-              var view = new google.visualization.DataView(data);
-              view.setColumns([0, 1,
+              var deletionView = new google.visualization.DataView(deletionBarData);
+              deletionView.setColumns([0, 1,
                                { calc: "stringify",
                                  sourceColumn: 1,
                                  type: "string",
                                  role: "annotation" },
                                2]);
-            var options = {
+            var deletionBarOptions = {
                 title: "Deletions",
                 bar: {groupWidth: "95%"},
                 legend: { position: "none" },
             };
-            var chart = new google.visualization.BarChart(document.getElementById('barchart_deletion'));
-            chart.draw(view, options);
+            var deletionBarChart = new google.visualization.BarChart(document.getElementById('barchart_deletion'));
+            deletionBarChart.draw(deletionView, deletionBarOptions);
         }
     });
 });
