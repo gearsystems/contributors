@@ -3,6 +3,7 @@
 google.load("visualization", "1", {packages: ["corechart"]});
 $(document).ready(function(){
     'use strict';
+    var globalLanguages = [];
     function requestUserData(URL, user, commit, addition, deletion){
         $.ajax({
             async: false,
@@ -39,6 +40,19 @@ $(document).ready(function(){
             }
         });
     }
+    function requestLanguages(URL, languages) {
+        $.ajax({
+            async: false,
+            url: URL,
+            dataType: "json",
+            success: function(languageData) {
+                var langLength = languageData.length;
+                var langArray = Object.keys(languageData);
+                globalLanguages = languages.concat(langArray);
+                // console.log(globalLanguages);
+            }
+        });
+    }
     $.ajax({
         url: "https://api.github.com/orgs/gearsystems/repos",
         dataType: "json",
@@ -52,8 +66,18 @@ $(document).ready(function(){
             for( var repoval = 0; repoval < size; repoval++){
                 var reponame = dataRepos[repoval].name;
                 var string = "https://api.github.com/repos/gearsystems/"+reponame+"/stats/contributors";
+                var languageString = "https://api.github.com/repos/gearsystems/"+reponame+"/languages";
                 requestUserData(string, user, commit, addition, deletion);
+                requestLanguages(languageString, globalLanguages);
             }
+
+            // Filtering by unique Languages
+            var uniqueLanguages = [];
+            $.each(globalLanguages, function(i, el){
+                if($.inArray(el, uniqueLanguages) === -1) uniqueLanguages.push(el);
+            });
+            console.log(uniqueLanguages);
+
             var final = [];
             final.push('Users','Commits','Additions','Deletions');
             for (var arrPopulate = 0; arrPopulate < user.length; arrPopulate++ ){
