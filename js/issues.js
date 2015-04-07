@@ -7,13 +7,16 @@ $(document).ready(function() {
 			dataType: "json",
 			success: function(RepoIssueData) {
 				var repoIssueslength = RepoIssueData.length;
-				issueString += "<h1>"+reponame+"</h1><table class='table table-striped table-hover '><thead><tr><th style='col-lg-2'>Issue Number</th><th style='col-lg-8'>Issue Title</th><th style='col-lg-2'>Issue route</th></tr></thead><tbody>";
-				for(var i=0; i<repoIssueslength; i++) {
-					issueString += "<tr><td>"+ RepoIssueData[i].number + "</td>";
-					issueString += "<td>"+ RepoIssueData[i].title + "</td>";
-					issueString += "<td>"+ "<a href='"+RepoIssueData[i].html_url+"' class=\"btn btn-warning\">Click here</a>" + "</td></tr>";
+				if (repoIssueslength > 0)
+				{
+					issueString += "<div class='container'><h1>"+reponame+"</h1><table class='table table-striped table-hover '><thead><tr><th style='col-lg-2'>Issue Number</th><th style='col-lg-8'>Issue Title</th><th style='col-lg-2 '>Issue route</th></tr></thead><tbody>";
+					for(var i=0; i<repoIssueslength; i++) {
+						issueString += "<tr><td class='col-lg-2' >"+ RepoIssueData[i].number + "</td>";
+						issueString += "<td class='col-lg-8'>"+ RepoIssueData[i].title + "</td>";
+						issueString += "<td class='col-lg-2'>"+ "<a href='"+RepoIssueData[i].html_url+"' class=\"btn btn-warning\">Click here</a>" + "</td></tr>";
+					}
+					issueString += "</tbody> </table> </div>";
 				}
-				issueString += "</tbody> </table> ";
 			}
 		});
 	}
