@@ -3,8 +3,8 @@
 google.load("visualization", "1", {packages: ["corechart"]});
 $(document).ready(function(){
     'use strict';
-    var globalLanguages = [];
-    function requestUserData(URL, user, commit, addition, deletion){
+    var globalLanguages = [], user = [], commit = [], addition = [], deletion = [];
+    function requestUserData(URL) {
         $.ajax({
             async: false,
             url: URL,
@@ -39,174 +39,167 @@ $(document).ready(function(){
                 }
             }
         });
-}
-function requestLanguages(URL, languages) {
+    }
+
+    function requestLanguages(URL, languages) {
+        $.ajax({
+            async: false,
+            url: URL,
+            dataType: "json",
+            success: function(languageData) {
+                var langArray = Object.keys(languageData);
+                globalLanguages = languages.concat(langArray);
+            }
+        });
+    }
+
     $.ajax({
-        async: false,
-        url: URL,
+        url: "https://api.github.com/orgs/gearsystems/repos",
         dataType: "json",
-        success: function(languageData) {
-            var langLength = languageData.length;
-            var langArray = Object.keys(languageData);
-            globalLanguages = languages.concat(langArray);
-}
-});
-}
-$.ajax({
-    url: "https://api.github.com/orgs/gearsystems/repos",
-    dataType: "json",
-    success: function(RepositoryData){
-        var dataRepos = RepositoryData;
-        var size = RepositoryData.length;
-        var user = [];
-        var commit = [];
-        var addition = [];
-        var deletion = [];
-        for( var repoval = 0; repoval < size; repoval++){
-            var reponame = dataRepos[repoval].name;
-            var string = "https://api.github.com/repos/gearsystems/"+reponame+"/stats/contributors";
-            var languageString = "https://api.github.com/repos/gearsystems/"+reponame+"/languages";
-            requestUserData(string, user, commit, addition, deletion);
-            requestLanguages(languageString, globalLanguages);
+        success: function(RepositoryData){
+            var size = RepositoryData.length;
+            for( var repoval = 0; repoval < size; repoval++) {
+                var reponame = RepositoryData[repoval].name;
+                var string = "https://api.github.com/repos/gearsystems/"+reponame+"/stats/contributors";
+                var languageString = "https://api.github.com/repos/gearsystems/"+reponame+"/languages";
+                requestUserData(string);
+                requestLanguages(languageString, globalLanguages);
+            }
+            
+            // Filtering by unique Languages
+            var uniqueLanguages = [];
+            $.each(globalLanguages, function(i, el){
+                if($.inArray(el, uniqueLanguages) === -1) {
+                    uniqueLanguages.push(el);
+                }
+            });
+            var languageRenderString = "<div style='font-size:24px;'>";
+            for(var langCount = 0; langCount < uniqueLanguages.length; langCount++) {
+                languageRenderString += "<span class='label label-default label-as-badge'>"+uniqueLanguages[langCount]+"</span>";
+            }
+            languageRenderString += "</div>";
+            $('#languages').html(languageRenderString);
+
+
+            var final = [];
+            final.push('Users','Commits','Additions','Deletions');
+            for (var arrPopulate = 0; arrPopulate < user.length; arrPopulate++ ){
+                final.push(user[arrPopulate],commit[arrPopulate],addition[arrPopulate],deletion[arrPopulate]);
+            }
+            //Commits for PieChart
+            var commitData = google.visualization.arrayToDataTable([
+                [final[0], final[1]],
+                [final[4], final[5]]
+                ]);
+            for (var rowAdder = 2; rowAdder < (final.length)/4; rowAdder++ ){
+                commitData.addRows([[final[(4*rowAdder)],final[(4*rowAdder)+1]]]);
+            }
+            var commitOptions = {
+                title: 'Commits'
+            };
+            var commitPieChart = new google.visualization.PieChart(document.getElementById('Commits'));
+            commitPieChart.draw(commitData, commitOptions);
+
+            //Additions for PieChart
+            var additionData = google.visualization.arrayToDataTable([
+                [final[0], final[2]],
+                [final[4], final[6]]
+                ]);
+            for (var additionRow = 2; additionRow < (final.length)/4; additionRow++ ){
+                additionData.addRows([[final[(4*additionRow)],final[(4*additionRow)+2]]]);
+            }
+            var additionOptions = {
+                title: 'Additions'
+            };
+            var additionPieChart = new google.visualization.PieChart(document.getElementById('Additions'));
+            additionPieChart.draw(additionData, additionOptions);
+
+            //Deletions for PieChart
+            var deletionData = google.visualization.arrayToDataTable([
+                [final[0], final[3]],
+                [final[4], final[7]]
+                ]);
+            for (var deletionRow = 2; deletionRow < (final.length)/4; deletionRow++ ){
+                deletionData.addRows([[final[(4*deletionRow)],final[(4*deletionRow)+3]]]);
+            }
+            var deletionOptions = {
+                title: 'Deletions'
+            };
+            var deletionPieChart = new google.visualization.PieChart(document.getElementById('Deletions'));
+            deletionPieChart.draw(deletionData, deletionOptions);
+
+
+            //Commits for BarChart
+            var commitBarData = google.visualization.arrayToDataTable([
+                [final[0], final[1], { role: 'style' }],
+                [final[4], final[5], 'red']
+                ]);
+            for (var commitBarRow = 2; commitBarRow < (final.length)/4; commitBarRow++ ){
+                commitBarData.addRows([[final[(4*commitBarRow)],final[(4*commitBarRow)+1], 'red']]);
+            }
+
+            var commitView = new google.visualization.DataView(commitBarData);
+            commitView.setColumns([0, 1,
+                { calc: "stringify",
+                sourceColumn: 1,
+                type: "string",
+                role: "annotation" },
+                2]);
+            var commitBarOptions = {
+                title: "Commits",
+                bar: {groupWidth: "95%"},
+                legend: { position: "none" },
+            };
+            var commitBarChart = new google.visualization.BarChart(document.getElementById('barchart_commit'));
+            commitBarChart.draw(commitView, commitBarOptions);
+
+            //Additions for BarChart
+            var additionBarData = google.visualization.arrayToDataTable([
+                [final[0], final[1], { role: 'style' }],
+                [final[4], final[6], 'green']
+                ]);
+            for (var additionBarRow = 2; additionBarRow < (final.length)/4; additionBarRow++ ){
+                additionBarData.addRows([[final[(4*additionBarRow)],final[(4*additionBarRow)+2], 'green']]);
+            }
+
+            var additionView = new google.visualization.DataView(additionBarData);
+            additionView.setColumns([0, 1,
+                { calc: "stringify",
+                sourceColumn: 1,
+                type: "string",
+                role: "annotation" },
+                2]);
+            var additionBarOptions = {
+                title: "Additions",
+                bar: {groupWidth: "95%"},
+                legend: { position: "none" },
+            };
+            var additionBarChart = new google.visualization.BarChart(document.getElementById('barchart_addition'));
+            additionBarChart.draw(additionView, additionBarOptions);
+
+            //Deletions for BarChart
+            var deletionBarData = google.visualization.arrayToDataTable([
+                [final[0], final[1], { role: 'style' }],
+                [final[4], final[7], 'blueviolet']
+                ]);
+            for (var deletionBarRow = 2; deletionBarRow < (final.length)/4; deletionBarRow++ ){
+                deletionBarData.addRows([[final[(4*deletionBarRow)],final[(4*deletionBarRow)+3], 'blueviolet']]);
+            }
+
+            var deletionView = new google.visualization.DataView(deletionBarData);
+            deletionView.setColumns([0, 1,
+                { calc: "stringify",
+                sourceColumn: 1,
+                type: "string",
+                role: "annotation" },
+                2]);
+            var deletionBarOptions = {
+                title: "Deletions",
+                bar: {groupWidth: "95%"},
+                legend: { position: "none" },
+            };
+            var deletionBarChart = new google.visualization.BarChart(document.getElementById('barchart_deletion'));
+            deletionBarChart.draw(deletionView, deletionBarOptions);
         }
-        
-// Filtering by unique Languages
-var uniqueLanguages = [];
-$.each(globalLanguages, function(i, el){
-    if($.inArray(el, uniqueLanguages) === -1) uniqueLanguages.push(el);
-});
-console.log(uniqueLanguages);
-var languageRenderString = "<div style='font-size:24px;'>";
-for(var langCount = 0; langCount < uniqueLanguages.length; langCount++) {
-    languageRenderString += "<span class='label label-default label-as-badge'>"+uniqueLanguages[langCount]+"</span>"
-}
-languageRenderString += "</div>"
-$('#languages').html(languageRenderString);
-
-
-var final = [];
-final.push('Users','Commits','Additions','Deletions');
-for (var arrPopulate = 0; arrPopulate < user.length; arrPopulate++ ){
-    final.push(user[arrPopulate],commit[arrPopulate],addition[arrPopulate],deletion[arrPopulate]);
-}
-//Commits
-var commitData = google.visualization.arrayToDataTable([
-    [final[0], final[1]],
-    [final[4], final[5]]
-    ]);
-for (var rowAdder = 2; rowAdder < (final.length)/4; rowAdder++ ){
-    commitData.addRows([[final[(4*rowAdder)],final[(4*rowAdder)+1]]]);
-}
-var commitOptions = {
-    title: 'Commits'
-};
-var commitPieChart = new google.visualization.PieChart(document.getElementById('Commits'));
-commitPieChart.draw(commitData, commitOptions);
-
-//Additions
-var additionData = google.visualization.arrayToDataTable([
-    [final[0], final[2]],
-    [final[4], final[6]]
-    ]);
-for (var additionRow = 2; additionRow < (final.length)/4; additionRow++ ){
-    additionData.addRows([[final[(4*additionRow)],final[(4*additionRow)+2]]]);
-}
-var additionOptions = {
-    title: 'Additions'
-};
-var additionPieChart = new google.visualization.PieChart(document.getElementById('Additions'));
-additionPieChart.draw(additionData, additionOptions);
-
-//Deletions
-var deletionData = google.visualization.arrayToDataTable([
-    [final[0], final[3]],
-    [final[4], final[7]]
-    ]);
-for (var deletionRow = 2; deletionRow < (final.length)/4; deletionRow++ ){
-    deletionData.addRows([[final[(4*deletionRow)],final[(4*deletionRow)+3]]]);
-}
-var deletionOptions = {
-    title: 'Deletions'
-};
-var deletionPieChart = new google.visualization.PieChart(document.getElementById('Deletions'));
-deletionPieChart.draw(deletionData, deletionOptions);
-
-
-
-
-//Commits
-var commitBarData = google.visualization.arrayToDataTable([
-    [final[0], final[1], { role: 'style' }],
-    [final[4], final[5], 'red']
-    ]);
-for (var commitBarRow = 2; commitBarRow < (final.length)/4; commitBarRow++ ){
-    commitBarData.addRows([[final[(4*commitBarRow)],final[(4*commitBarRow)+1], 'red']]);
-}
-
-var commitView = new google.visualization.DataView(commitBarData);
-commitView.setColumns([0, 1,
-    { calc: "stringify",
-    sourceColumn: 1,
-    type: "string",
-    role: "annotation" },
-    2]);
-var commitBarOptions = {
-    title: "Commits",
-    bar: {groupWidth: "95%"},
-    legend: { position: "none" },
-};
-var commitBarChart = new google.visualization.BarChart(document.getElementById('barchart_commit'));
-commitBarChart.draw(commitView, commitBarOptions);
-
-
-//Additions
-var additionBarData = google.visualization.arrayToDataTable([
-    [final[0], final[1], { role: 'style' }],
-    [final[4], final[6], 'green']
-    ]);
-for (var additionBarRow = 2; additionBarRow < (final.length)/4; additionBarRow++ ){
-    additionBarData.addRows([[final[(4*additionBarRow)],final[(4*additionBarRow)+2], 'green']]);
-}
-
-var additionView = new google.visualization.DataView(additionBarData);
-additionView.setColumns([0, 1,
-    { calc: "stringify",
-    sourceColumn: 1,
-    type: "string",
-    role: "annotation" },
-    2]);
-var additionBarOptions = {
-    title: "Additions",
-    bar: {groupWidth: "95%"},
-    legend: { position: "none" },
-};
-var additionBarChart = new google.visualization.BarChart(document.getElementById('barchart_addition'));
-additionBarChart.draw(additionView, additionBarOptions);
-
-
-//Deletions
-var deletionBarData = google.visualization.arrayToDataTable([
-    [final[0], final[1], { role: 'style' }],
-    [final[4], final[7], 'blueviolet']
-    ]);
-for (var deletionBarRow = 2; deletionBarRow < (final.length)/4; deletionBarRow++ ){
-    deletionBarData.addRows([[final[(4*deletionBarRow)],final[(4*deletionBarRow)+3], 'blueviolet']]);
-}
-
-var deletionView = new google.visualization.DataView(deletionBarData);
-deletionView.setColumns([0, 1,
-    { calc: "stringify",
-    sourceColumn: 1,
-    type: "string",
-    role: "annotation" },
-    2]);
-var deletionBarOptions = {
-    title: "Deletions",
-    bar: {groupWidth: "95%"},
-    legend: { position: "none" },
-};
-var deletionBarChart = new google.visualization.BarChart(document.getElementById('barchart_deletion'));
-deletionBarChart.draw(deletionView, deletionBarOptions);
-}
-});
+    });
 }); 
